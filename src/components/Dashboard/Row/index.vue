@@ -1,7 +1,7 @@
 <template>
   <div class="row-wrapper">
     <div class="row-item">{{ rowName }}</div>
-    <div v-for="country in formatedCountries" class="row-item" :key="country">
+    <div v-for="country in countryNames" class="row-item" :key="country">
       <ItemContent :bestRevenue="getRoundedTotal(country) === bestRevenue">
         {{ getRoundedTotal(country) }}k
       </ItemContent>
@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, reactive, toRefs } from "vue";
 
-import { Placement } from "@/types/index";
+import { Placement } from "@/types";
 import { sumNumbers, sumRevenues } from "@/utils/helpers";
 
 import { ItemContent } from "../style";
@@ -30,35 +30,37 @@ export default defineComponent({
       required: true,
       type: Object as PropType<Placement[]>,
     },
+    countryNames: {
+      required: true,
+      type: Array as PropType<string[]>,
+    },
     rowName: {
       required: true,
       type: String,
     },
   },
-  computed: {
-    allRevenues() {
-      return this.formatedCountries.map((country) =>
-        sumRevenues(this.countries[country])
-      );
-    },
-    bestRevenue() {
-      const revenues = this.allRevenues;
-      revenues.sort((a: number, b: number) => b - a);
+  setup(props) {
+    const event: any = reactive({
+      allRevenues: computed(() =>
+        props.countryNames.map((country) =>
+          sumRevenues(props.countries[country])
+        )
+      ),
+      bestRevenue: computed(() => {
+        const revenues = event.allRevenues;
+        revenues.sort((a: number, b: number) => b - a);
 
-      return Math.floor(revenues[0]);
-    },
-    formatedCountries() {
-      return Object.keys(this.countries);
-    },
-    total() {
-      return sumNumbers(this.allRevenues);
-    },
-  },
-  methods: {
-    getRoundedTotal(country: string) {
-      const perCountry = sumRevenues(this.countries[country]);
-      return Math.floor(perCountry);
-    },
+        return Math.floor(revenues[0]);
+      }),
+      total: computed(() => sumNumbers(event.allRevenues)),
+    });
+
+    const getRoundedTotal = (country: string) => {
+      const totalPerCountry = sumRevenues(props.countries[country]);
+      return Math.floor(totalPerCountry);
+    };
+
+    return { ...toRefs(event), getRoundedTotal };
   },
 });
 </script>

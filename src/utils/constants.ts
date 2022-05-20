@@ -1,5 +1,7 @@
+import dayjs from "dayjs";
+
 export const ANDROID_PLATFORM = "Android";
-export const DEFAULT_DATE_PERIOD = ["2017-08-01", "2017-08-02"];
+export const DEFAULT_DATE_PERIOD = [dayjs(), dayjs().add(7, "day")];
 export const IOS_PLATFORM = "iOS";
 
 export const API_OPTIONS = {

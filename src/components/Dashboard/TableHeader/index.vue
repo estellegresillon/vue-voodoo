@@ -1,11 +1,7 @@
 <template>
   <div class="header-wrapper">
     <div class="header-item">Game name</div>
-    <div
-      v-for="country in formatedCountries"
-      class="header-item"
-      :key="country"
-    >
+    <div v-for="country in countryNames" class="header-item" :key="country">
       {{ country }}
     </div>
     <div class="header-item">Total</div>
@@ -15,19 +11,12 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 
-import { Placement } from "@/types/index";
-
 export default defineComponent({
   props: {
-    countries: {
+    countryNames: {
       required: true,
-      type: Object as PropType<Placement[]>,
+      type: Array as PropType<String[]>,
     },
-  },
-  data() {
-    return {
-      formatedCountries: Object.keys(this.countries),
-    };
   },
 });
 </script>

@@ -1,29 +1,34 @@
 <template>
   <div class="dashboard-wrapper">
-    <TableHeader :countries="sortedByCountries" />
+    <TableHeader :countryNames="countryNames" />
     <Row
-      v-for="game in formatedGames"
-      :countries="sortGamesByCountries(game)"
+      v-for="game in gameNames"
+      :countries="groupCountriesByGame(game)"
+      :countryNames="countryNames"
       :key="game"
       :rowName="game"
     />
-    <Row rowName="All games" :countries="sortedByCountries" />
+    <Row
+      rowName="All games"
+      :countries="groupedCountries"
+      :countryNames="countryNames"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { groupBy } from "lodash";
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, reactive, toRefs } from "vue";
 
-import { Placement } from "@/types/index";
+import { Placement, ReactiveDashboard } from "@/types/index";
 
-import TableHeader from "./TableHeader/index.vue";
 import Row from "./Row/index.vue";
+import TableHeader from "./TableHeader/index.vue";
 
 export default defineComponent({
   components: {
-    TableHeader,
     Row,
+    TableHeader,
   },
   props: {
     data: {
@@ -31,21 +36,20 @@ export default defineComponent({
       type: Array as PropType<Placement[]>,
     },
   },
-  computed: {
-    formatedGames(): string[] {
-      return Object.keys(this.games);
-    },
-    games() {
-      return groupBy(this.data, ({ game }) => game);
-    },
-    sortedByCountries() {
-      return groupBy(this.data, ({ country }) => country);
-    },
-  },
-  methods: {
-    sortGamesByCountries(game: string) {
-      return groupBy(this.games[game], "country");
-    },
+  setup(props) {
+    const event: ReactiveDashboard = reactive({
+      countryNames: computed(() => Object.keys(event.groupedCountries)),
+      gameNames: computed(() => Object.keys(event.groupedGames)),
+      groupedCountries: computed(() =>
+        groupBy(props.data, ({ country }) => country)
+      ),
+      groupedGames: computed(() => groupBy(props.data, ({ game }) => game)),
+    });
+
+    const groupCountriesByGame = (game: string) =>
+      groupBy(event.groupedGames[game], "country");
+
+    return { ...toRefs(event), groupCountriesByGame };
   },
 });
 </script>

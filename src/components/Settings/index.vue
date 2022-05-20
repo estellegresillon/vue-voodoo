@@ -12,13 +12,13 @@
     <DatePicker @change="onDateChange" :value="date" />
     <div class="legend-wrapper">
       <div class="square" />
-      Highest revenue
+      Highest revenues
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 import Checkbox from "@/components/common/Checkbox/index.vue";
 import DatePicker from "@/components/common/DatePicker/index.vue";
@@ -47,23 +47,26 @@ export default defineComponent({
       type: Function,
     },
   },
-  data() {
-    return {
-      isChecked: false,
-      options: [ANDROID_PLATFORM, IOS_PLATFORM],
-    };
-  },
-  methods: {
-    handleChange(opt: string) {
-      const newValue = !this.os.includes(opt);
+  setup(props) {
+    const isChecked = ref(false);
+    const options = ref([ANDROID_PLATFORM, IOS_PLATFORM]);
+
+    const handleChange = (opt: string) => {
+      const newValue = !props.os.includes(opt);
 
       if (newValue) {
-        this.setOs([...this.os, opt]);
+        props.setOs([...props.os, opt]);
       } else {
-        const newOsState = [...this.os].filter((el) => el !== opt);
-        this.setOs(newOsState);
+        const newOsState = [...props.os].filter((el) => el !== opt);
+        props.setOs(newOsState);
       }
-    },
+    };
+
+    return {
+      handleChange,
+      isChecked,
+      options,
+    };
   },
 });
 </script>

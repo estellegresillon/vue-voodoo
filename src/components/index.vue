@@ -16,15 +16,22 @@
 import axios from "axios";
 import { Dayjs } from "dayjs";
 import { groupBy } from "lodash";
-import { defineComponent } from "vue";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  reactive,
+  toRefs,
+  watch,
+} from "vue";
 
-import { Placement } from "@/types/index";
+import { Placement, ReactiveRoot } from "@/types/index";
 import {
   API_OPTIONS,
   DEFAULT_DATE_PERIOD,
   IOS_PLATFORM,
 } from "@/utils/constants";
-import { formatApiDate, parseDate } from "@/utils/helpers";
+import { formatApiDate } from "@/utils/helpers";
 
 import Dashboard from "./Dashboard/index.vue";
 import Settings from "./Settings/index.vue";
@@ -34,38 +41,28 @@ export default defineComponent({
     Dashboard,
     Settings,
   },
-  data() {
-    return {
-      data: [] as Placement[],
-      date: parseDate(DEFAULT_DATE_PERIOD) as Dayjs[],
-      filteredData: [] as Placement[],
-      os: [IOS_PLATFORM] as string[],
-    };
-  },
-  created() {
-    this.fetchData(this.date);
-  },
-  computed: {
-    hasFilteredData(): boolean {
-      return this.filteredData?.length > 0;
-    },
-  },
-  watch: {
-    date(newValue: Dayjs[]) {
-      this.fetchData(newValue);
-    },
-    os(newValue: string[]) {
-      this.filterData(this.data, newValue);
-    },
-  },
-  methods: {
-    fetchData(date: Dayjs[]) {
-      axios.get(this.getUrl(date), API_OPTIONS).then((response) => {
-        this.data = response.data;
-        this.filterData(response.data, this.os);
-      });
-    },
-    filterData(data: Placement[], os: string[]) {
+  setup() {
+    onMounted(() => fetchData(event.date));
+
+    const event: ReactiveRoot = reactive({
+      data: [],
+      date: DEFAULT_DATE_PERIOD,
+      filteredData: [],
+      hasFilteredData: computed(() => event.filteredData?.length > 0),
+      os: [IOS_PLATFORM],
+    });
+
+    watch(
+      () => [...event.date],
+      (currentValue: Dayjs[]) => fetchData(currentValue)
+    );
+
+    watch(
+      () => [...event.os],
+      (currentValue: string[]) => filterData(event.data, currentValue)
+    );
+
+    const filterData = (data: Placement[], os: string[]) => {
       const sortedByOs = groupBy(data, ({ platform }) => platform);
       let newFilteredData: Placement[] = [];
 
@@ -74,23 +71,34 @@ export default defineComponent({
         newFilteredData = data;
       });
 
-      this.filteredData = newFilteredData;
-    },
-    getUrl(date: Dayjs[]): string {
-      return `${process.env.VUE_APP_API_URL}monetizations?start=${formatApiDate(
+      event.filteredData = newFilteredData;
+    };
+
+    const getUrl = (date: Dayjs[]): string =>
+      `${process.env.VUE_APP_API_URL}monetizations?start=${formatApiDate(
         0,
         date
       )}&end=${formatApiDate(
         1,
         date
       )}&dimensions=game,country,os&aggregates=revenue`;
-    },
-    setDate(date: Dayjs[]) {
-      this.date = date;
-    },
-    setOs(os: string[]) {
-      this.os = os;
-    },
+
+    const fetchData = (date: Dayjs[]) => {
+      axios.get(getUrl(date), API_OPTIONS).then((response) => {
+        event.data = response.data;
+        filterData(response.data, event.os);
+      });
+    };
+
+    const setDate = (date: Dayjs[]) => {
+      event.date = date;
+    };
+
+    const setOs = (os: string[]) => {
+      event.os = os;
+    };
+
+    return { ...toRefs(event), setDate, setOs };
   },
 });
 </script>

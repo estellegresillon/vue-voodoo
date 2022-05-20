@@ -6,13 +6,7 @@ import { Placement } from "@/types/index";
 export const formatApiDate = (index: number, date?: Dayjs[]) => {
   if (!date) return DEFAULT_DATE_PERIOD[index];
 
-  return typeof date[index] === "string"
-    ? date[index]
-    : dayjs(date[index]).format("YYYY-MM-DD");
-};
-
-export const parseDate = (date?: string[]): Dayjs[] | null => {
-  return date ? [dayjs(date[0]), dayjs(date[1])] : null;
+  return dayjs(date[index]).format("YYYY-MM-DD");
 };
 
 export const sumNumbers = (revenues: number[]) => {
