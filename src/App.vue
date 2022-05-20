@@ -1,26 +1,21 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
+  <ThemeProvider><Home /></ThemeProvider>
 </template>
 
-<script>
-import HelloWorld from "./components/HelloWorld.vue";
+<script lang="ts">
+import { defineComponent } from "vue";
+import { ThemeProvider } from "vue3-styled-components";
 
-export default {
-  name: "App",
+import Home from "./components/index.vue";
+
+export default defineComponent({
   components: {
-    HelloWorld,
+    Home,
+    ThemeProvider,
   },
-};
+});
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+@import "@/assets/styles/base.css";
 </style>
