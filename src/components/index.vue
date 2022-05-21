@@ -42,24 +42,24 @@ export default defineComponent({
     Settings,
   },
   setup() {
-    onMounted(() => fetchData(event.date));
+    onMounted(() => fetchData(state.date));
 
-    const event: ReactiveRoot = reactive({
+    const state: ReactiveRoot = reactive({
       data: [],
       date: DEFAULT_DATE_PERIOD,
       filteredData: [],
-      hasFilteredData: computed(() => event.filteredData?.length > 0),
+      hasFilteredData: computed(() => state.filteredData?.length > 0),
       os: [IOS_PLATFORM],
     });
 
     watch(
-      () => [...event.date],
+      () => [...state.date],
       (currentValue: Dayjs[]) => fetchData(currentValue)
     );
 
     watch(
-      () => [...event.os],
-      (currentValue: string[]) => filterData(event.data, currentValue)
+      () => [...state.os],
+      (currentValue: string[]) => filterData(state.data, currentValue)
     );
 
     const filterData = (data: Placement[], os: string[]) => {
@@ -71,7 +71,7 @@ export default defineComponent({
         newFilteredData = data;
       });
 
-      event.filteredData = newFilteredData;
+      state.filteredData = newFilteredData;
     };
 
     const getUrl = (date: Dayjs[]): string =>
@@ -85,20 +85,20 @@ export default defineComponent({
 
     const fetchData = (date: Dayjs[]) => {
       axios.get(getUrl(date), API_OPTIONS).then((response) => {
-        event.data = response.data;
-        filterData(response.data, event.os);
+        state.data = response.data;
+        filterData(response.data, state.os);
       });
     };
 
     const setDate = (date: Dayjs[]) => {
-      event.date = date;
+      state.date = date;
     };
 
     const setOs = (os: string[]) => {
-      event.os = os;
+      state.os = os;
     };
 
-    return { ...toRefs(event), setDate, setOs };
+    return { ...toRefs(state), setDate, setOs };
   },
 });
 </script>

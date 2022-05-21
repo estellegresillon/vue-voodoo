@@ -1,6 +1,6 @@
 import { Dayjs } from "dayjs";
 
-interface Dictionary<T> {
+export interface Dictionary<T> {
   [key: string]: T;
 }
 
@@ -24,4 +24,10 @@ export type ReactiveRoot = {
   filteredData: Placement[];
   hasFilteredData: boolean;
   os: string[];
+};
+
+export type ReactiveRow = {
+  allRevenues: number[];
+  bestRevenue: number;
+  total: number;
 };

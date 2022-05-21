@@ -37,9 +37,9 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const event: ReactiveDashboard = reactive({
-      countryNames: computed(() => Object.keys(event.groupedCountries)),
-      gameNames: computed(() => Object.keys(event.groupedGames)),
+    const state: ReactiveDashboard = reactive({
+      countryNames: computed(() => Object.keys(state.groupedCountries)),
+      gameNames: computed(() => Object.keys(state.groupedGames)),
       groupedCountries: computed(() =>
         groupBy(props.data, ({ country }) => country)
       ),
@@ -47,9 +47,9 @@ export default defineComponent({
     });
 
     const groupCountriesByGame = (game: string) =>
-      groupBy(event.groupedGames[game], "country");
+      groupBy(state.groupedGames[game], "country");
 
-    return { ...toRefs(event), groupCountriesByGame };
+    return { ...toRefs(state), groupCountriesByGame };
   },
 });
 </script>
